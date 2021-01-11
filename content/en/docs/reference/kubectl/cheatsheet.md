@@ -148,7 +148,7 @@ kubectl get services                          # List all services in the namespa
 kubectl get pods --all-namespaces             # List all pods in all namespaces
 kubectl get pods -o wide                      # List all pods in the current namespace, with more details
 kubectl get deployment my-dep                 # List a particular deployment
-kubectl get pods                              # List all pods in the namespace
+kubectl get pods                             # List all pods in the namespace
 kubectl get pod my-pod -o yaml                # Get a pod's YAML
 
 # Describe commands with verbose output
@@ -193,6 +193,9 @@ kubectl get pods --show-labels
 # Check which nodes are ready
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' \
  && kubectl get nodes -o jsonpath="$JSONPATH" | grep "Ready=True"
+
+# Output decoded secrets without external tools
+kubectl get secret ${secret_name} -o go-template='{{range $k,$v := .data}}{{$k}}={{$v|base64decode}}{{"\n"}}{{end}}'
 
 # List all Secrets currently in use by a pod
 kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq
